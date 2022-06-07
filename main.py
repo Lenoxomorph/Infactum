@@ -13,7 +13,7 @@ class Infactum(commands.Bot):
     def __init__(self, prefix, description=None, **options):
         super().__init__(
             prefix,
-            # help_command=help_command,
+            # help_command=help_command, # TODO: Help Command
             description=description,
             **options,
         )
@@ -31,12 +31,7 @@ class Infactum(commands.Bot):
 #     print(test)
 
 desc = (
-    "Play D&D over Discord! Featuring advanced dice, initiative tracking, D&D Beyond integration, and more, you'll"
-    " never need another D&D bot.\nView the full list of commands [here](https://avrae.io/commands)!\nInvite Avrae to"
-    " your server [here](https://invite.avrae.io)!\nJoin the official development server"
-    " [here](https://support.avrae.io)!\n[Privacy"
-    " Policy](https://company.wizards.com/en/legal/wizards-coasts-privacy-policy) | [Terms of"
-    " Use](https://company.wizards.com/en/legal/terms)"
+    "A Funny Good Description"  # TODO: Write said funny and good description
 )
 intents = discord.Intents(
     guilds=True,
@@ -57,9 +52,8 @@ bot = Infactum(
     description=desc,
     activity=discord.Activity(type=discord.ActivityType.listening, name='eldritch screams'),
     allowed_mentions=discord.AllowedMentions.none(),
-    # intents=intents,
-    # status
-    # chunk_guilds_at_startup=False,
+    intents=intents,
+    chunk_guilds_at_startup=False,
 )
 
 
@@ -89,13 +83,10 @@ async def on_message(message):
         pass  # TODO: Add Aliases
 
 
-@bot.command()
-async def get_profile_pic(ctx):
-    await ctx.send(ctx.guild.icon_url)
-
+for filename in os.listdir('cogs'):
+    print(filename)
+    if filename.startswith('.'):
+        bot.load_extension(f'cogs.{filename}')
 
 if __name__ == '__main__':
-    # bot.state = "run"
-    # bot.loop.create_task(compendium.reload_task(bot.mdb))
-    bot.run(os.environ.get("MAIN_TOKEN", ""))
-
+    bot.run(os.environ.get("NIGHTLY_TOKEN", ""))
