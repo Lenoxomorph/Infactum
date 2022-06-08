@@ -23,6 +23,12 @@ class Roller(commands.Cog):
         await try_delete(ctx.message)
         await ctx.send(out, allowed_mentions=discord.AllowedMentions(users=[ctx.author]))
 
+    @commands.command(name="multiroll", aliases=["rr"])
+    async def rr(self, ctx, iterations: int, *, dice):
+        """"""  # TODO Add Description
+        dice, adv = string_search_adv(dice)
+        await self._roll_many(ctx, iterations, dice, adv=adv)
+
     @staticmethod
     async def _roll_many(ctx, iterations, roll_str, dc=None, adv=None):
         if iterations < 1 or iterations > 100:
