@@ -13,15 +13,12 @@ class Infactum(commands.Bot):
     def __init__(self, prefix, description=None, **options):
         super().__init__(
             prefix,
-            # help_command=help_command, # TODO: Help Command
+            # help_command=help_command,  # TODO: Help Command
             description=description,
             **options,
         )
         self.muted = set()
 
-
-# for cog in COGS:
-#     bot.load_extension(cog)
 
 # def main(name):
 #     try:
@@ -83,10 +80,14 @@ async def on_message(message):
         pass  # TODO: Add Aliases
 
 
-for filename in os.listdir('cogs'):
-    print(filename)
-    if filename.startswith('.'):
-        bot.load_extension(f'cogs.{filename}')
+@bot.command()
+async def test(ctx):
+    pass
+
+
+for dir_name in os.listdir('cogs'):
+    if dir_name != "__pycache__":
+        bot.load_extension(f'cogs.{dir_name}')
 
 if __name__ == '__main__':
     bot.run(os.environ.get("NIGHTLY_TOKEN", ""))
