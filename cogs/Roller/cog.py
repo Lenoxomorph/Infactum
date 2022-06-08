@@ -13,7 +13,7 @@ class Roller(commands.Cog):
 
     @commands.command(name="roll", aliases=["r"])
     async def roll(self, ctx, *, dice: str = "1d20"):
-        """Quickly rolls a d20."""
+        """"""  # TODO Add Description
         dice, adv = string_search_adv(dice)
 
         res = d20.roll(dice, advantage=adv, allow_comments=True, stringifier=MainStringifier())
