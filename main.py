@@ -29,8 +29,9 @@ class Infactum(commands.Bot):
 #     print(test)
 
 desc = (
-    "A Funny Good Description"  # TODO: Write said funny and good description
+    "A bot for managing rolls and characters for [Insert System Here]"  # TODO: Write said funny and good description
 )
+
 intents = discord.Intents(
     guilds=True,
     members=True,
