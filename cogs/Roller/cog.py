@@ -4,7 +4,7 @@ from discord.ext import commands
 
 from utils.dice import MainStringifier, MultiRollContext
 from utils.functions import try_delete
-from .utils import string_search_adv
+from .utils import string_search_adv, mention_user
 
 
 class Roller(commands.Cog):
@@ -17,10 +17,9 @@ class Roller(commands.Cog):
         dice, adv = string_search_adv(dice)
 
         res = d20.roll(dice, advantage=adv, allow_comments=True, stringifier=MainStringifier())
-        header = f"{ctx.author.mention}  :game_die:\n"  # TODO Add Custom Emojis
-        out = header + str(res)
+        out = f"{mention_user(ctx.author)}\n{str(res)}"
         if len(out) > 1999:
-            out = f"{header} + {str(res)[:100]} + ...\n**Total**: {res.total}"
+            out = f"{mention_user(ctx.author)}\n{str(res)[:100]}...\n**Total**: {res.total}"
         await try_delete(ctx.message)
         await ctx.send(out, allowed_mentions=discord.AllowedMentions(users=[ctx.author]))
 
@@ -42,8 +41,8 @@ class Roller(commands.Cog):
             results.append(res)
 
         if dc is None:
-            header = f"Rolling {iterations} iterations..."
-            footer = f"{sum(o.total for o in results)} total."
+            header = f"**Results:** *Rolling {iterations} iterations*"
+            footer = f"**Total:** {sum(o.total for o in results)}"
         else:
             header = f"Rolling {iterations} iterations, DC {dc}..."
             footer = f"{successes} successes, {sum(o.total for o in results)} total."
@@ -60,4 +59,4 @@ class Roller(commands.Cog):
             out = f"{header}\n{one_result}\n[{len(results) - 1} results omitted for output size.]\n{footer}"
 
         await try_delete(ctx.message)
-        await ctx.send(f"{ctx.author.mention}\n{out}", allowed_mentions=discord.AllowedMentions(users=[ctx.author]))
+        await ctx.send(f"{mention_user(ctx.author)}\n{out}", allowed_mentions=discord.AllowedMentions(users=[ctx.author]))
