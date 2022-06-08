@@ -75,6 +75,10 @@ async def on_command_error(ctx, error):
         if isinstance(original, d20.RollError):
             return await ctx.send(f"ERROR: ROLL ERROR - {original}")
 
+    await ctx.send(
+        f"Error: {str(error)}\nUNEXPECTED ERROR"  # TODO Add unexpected error text
+    )
+
 
 @bot.event
 async def on_message(message):
