@@ -11,3 +11,7 @@ def string_search_adv(dice_str: str):
         adv = d20.AdvType.ADV if match.group(1) == "adv" else d20.AdvType.DIS
         dice_str = dice_str[: match.start(1)] + dice_str[match.end():]
     return dice_str, adv
+
+
+def mention_user(author):
+    return f"{author.mention}  :game_dice:"  # TODO Add Custom Emojis
