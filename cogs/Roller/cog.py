@@ -17,8 +17,9 @@ class Roller(commands.Cog):
         dice, adv = string_search_adv(dice)
 
         res = d20.roll(dice, advantage=adv, allow_comments=True, stringifier=MainStringifier())
-        out = f"{ctx.author.mention}  :game_die:\n{str(res)}"
+        header = f"{ctx.author.mention}  :game_die:\n"  # TODO Add Custom Emojis
+        out = header + str(res)
         if len(out) > 1999:
-            out = f"{ctx.author.mention}  :game_die:\n{str(res)[:100]}...\n**Total**: {res.total}"
+            out = f"{header} + {str(res)[:100]} + ...\n**Total**: {res.total}"
         await try_delete(ctx.message)
         await ctx.send(out, allowed_mentions=discord.AllowedMentions(users=[ctx.author]))
