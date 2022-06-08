@@ -3,6 +3,7 @@ import os
 import d20
 import discord
 from discord.ext import commands
+from discord.ext.commands import CommandInvokeError
 
 
 async def get_prefix(the_bot, message):
@@ -63,6 +64,16 @@ async def on_ready():
 @bot.event
 async def on_resumed():
     print("Resumed")
+
+
+@bot.event
+async def on_command_error(ctx, error):
+    if isinstance(error, commands.CommandNotFound):
+        return
+    elif isinstance(error, CommandInvokeError):
+        original = error.original
+        if isinstance(original, d20.RollError):
+            return await ctx.send(f"Error in roll: {original}")
 
 
 @bot.event
