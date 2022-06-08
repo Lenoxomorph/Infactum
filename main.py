@@ -80,11 +80,6 @@ async def on_message(message):
         pass  # TODO: Add Aliases
 
 
-@bot.command()
-async def test(ctx):
-    pass
-
-
 for dir_name in os.listdir('cogs'):
     if dir_name != "__pycache__":
         bot.load_extension(f'cogs.{dir_name}')
