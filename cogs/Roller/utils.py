@@ -14,4 +14,4 @@ def string_search_adv(dice_str: str):
 
 
 def mention_user(author):
-    return f"{author.mention}  :game_dice:"  # TODO Add Custom Emojis
+    return f"{author.mention}  :game_die:"  # TODO Add Custom Emojis
