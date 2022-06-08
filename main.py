@@ -73,7 +73,7 @@ async def on_command_error(ctx, error):
     elif isinstance(error, CommandInvokeError):
         original = error.original
         if isinstance(original, d20.RollError):
-            return await ctx.send(f"Error in roll: {original}")
+            return await ctx.send(f"ERROR: ROLL ERROR - {original}")
 
 
 @bot.event
