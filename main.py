@@ -75,7 +75,8 @@ async def on_command_error(ctx, error):
 
     await ctx.send(
         make_error(f"UNEXPECTED ERROR!", True)  # TODO Add unexpected error text
-        #  discord.Embed(title="You've Found Bug!", url="https://discord.gg/GzawEqQ", description="Join the dev discord server to report what happened!")
+        #  discord.Embed(title="You've Found Bug!", url="https://discord.gg/GzawEqQ",
+        #  description="Join the dev discord server to report what happened!")
     )
 
 
