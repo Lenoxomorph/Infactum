@@ -101,4 +101,4 @@ for dir_name in os.listdir('cogs'):
         bot.load_extension(f'cogs.{dir_name}')
 
 if __name__ == '__main__':
-    bot.run(os.environ.get("NIGHTLY_TOKEN", ""))
+    bot.run(os.environ.get("BOT_TOKEN", ""))
