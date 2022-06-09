@@ -21,13 +21,6 @@ class Infactum(commands.Bot):
         self.muted = set()
 
 
-# def main(name):
-#     try:
-#         test = d20.roll("1d")
-#     except d20.RollSyntaxError as e:
-#         print(f"Error: {e}")
-#     print(test)
-
 desc = (
     "A bot for managing rolls and characters for [Insert System Here]"  # TODO: Write said funny and good description
 )
