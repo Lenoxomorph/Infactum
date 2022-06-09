@@ -10,6 +10,10 @@ async def get_prefix(the_bot, message):
     return ">"
 
 
+def make_error(message, error: bool = False):
+    return f"```{'css' if error else 'fix'}\n[ERROR: {message}]\n```"
+
+
 class Infactum(commands.Bot):
     def __init__(self, prefix, description=None, **options):
         super().__init__(
@@ -67,10 +71,11 @@ async def on_command_error(ctx, error):
     elif isinstance(error, CommandInvokeError):
         original = error.original
         if isinstance(original, d20.RollError):
-            return await ctx.send(f"ERROR: ROLL ERROR - {original}")
+            return await ctx.send(make_error(f"ROLL ERROR - {original}"))
 
     await ctx.send(
-        f"Error: {str(error)}\nUNEXPECTED ERROR"  # TODO Add unexpected error text
+        make_error(f"UNEXPECTED ERROR!", True)  # TODO Add unexpected error text
+        #  discord.Embed(title="You've Found Bug!", url="https://discord.gg/GzawEqQ", description="Join the dev discord server to report what happened!")
     )
 
 
