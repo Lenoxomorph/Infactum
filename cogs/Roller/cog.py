@@ -70,4 +70,5 @@ class Roller(commands.Cog):
             out = f"{header}\n{one_result}\n[{len(results) - 1} results omitted for output size.]\n{footer}"
 
         await try_delete(ctx.message)
-        await ctx.send(f"{mention_user(ctx.author)}\n{out}", allowed_mentions=discord.AllowedMentions(users=[ctx.author]))
+        await ctx.send(f"{mention_user(ctx.author)}"
+                       f"\n{out}", allowed_mentions=discord.AllowedMentions(users=[ctx.author]))
