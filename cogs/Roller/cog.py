@@ -29,6 +29,11 @@ class Roller(commands.Cog):
         dice, adv = string_search_adv(dice)
         await self._roll_many(ctx, iterations, dice, adv=adv)
 
+    @commands.command(name="randchar", aliases=["randomcharacter"])
+    async def randchar(self, ctx):  # TODO Add Leveled Rand Char
+        """"""  # TODO Add Description
+        await self._roll_many(ctx, 6, "4d6kh3")
+
     @staticmethod
     async def _roll_many(ctx, iterations, roll_str, dc=None, adv=None):
         if iterations < 1 or iterations > 100:
