@@ -5,6 +5,11 @@ import discord
 from discord.ext import commands
 from discord.ext.commands import CommandInvokeError
 
+from utils import config
+from utils import functions
+
+
+# TODO Init Command, Prefix, Help Command, Emoji, Character Stuff
 
 async def get_prefix(the_bot, message):
     return ">"
