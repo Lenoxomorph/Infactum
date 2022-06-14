@@ -12,7 +12,11 @@ from utils import functions
 # TODO Init Command, Prefix, Help Command, Emoji, Character Stuff
 
 async def get_prefix(the_bot, message):
-    return ">"
+    if not message.guild:
+        return commands.when_mentioned_or(config.DEFAULT_PREFIX)(the_bot, message)
+    gp = await the_bot.get_guild_prefix(message.guild)
+    return commands.when_mentioned_or(gp)(the_bot, message)
+    pass
 
 
 def make_error(message, error: bool = False):
@@ -28,6 +32,19 @@ class Infactum(commands.Bot):
             **options,
         )
         self.muted = set()
+
+        self.prefixes = dict()
+
+    async def get_guild_prefix(self, guild: discord.Guild) -> str:
+        guild_id = str(guild.id)
+        if guild_id in self.prefixes:
+            return self.prefixes.get(guild_id, config.DEFAULT_PREFIX)
+
+        gp = functions.search_csv(guild_id, "db/prefixes.csv")
+        if gp is None:
+            gp = config.DEFAULT_PREFIX
+        self.prefixes[guild_id] = gp
+        return gp
 
 
 desc = (
@@ -105,4 +122,4 @@ for dir_name in os.listdir('cogs'):
         bot.load_extension(f'cogs.{dir_name}')
 
 if __name__ == '__main__':
-    bot.run(os.environ.get("BOT_TOKEN", ""))
+    bot.run(config.BOT_TOKEN)
