@@ -1,4 +1,6 @@
 import os
+import sys
+import traceback
 
 import d20
 import discord
@@ -7,9 +9,10 @@ from discord.ext.commands import CommandInvokeError
 
 from utils import config
 from utils import functions
+from utils.errors import InfactumException
 
 
-# TODO Init Command, Prefix, Help Command, Emoji, Character Stuff
+# TODO Prefix, Emoji, Init Command, Help Command, Character Stuff
 
 async def get_prefix(the_bot, message):
     if not message.guild:
@@ -90,16 +93,24 @@ async def on_resumed():
 async def on_command_error(ctx, error):
     if isinstance(error, commands.CommandNotFound):
         return
+    elif isinstance(error, InfactumException):
+        return await ctx.send(make_error(error))
+    elif isinstance(error, (commands.UserInputError, commands.NoPrivateMessage, ValueError)):
+        return await ctx.send(make_error(f"COMMAND ERROR: {str(error)}\n"
+                                         f"Use \"{ctx.prefix}help " + ctx.command.qualified_name + "\" for help."))
     elif isinstance(error, CommandInvokeError):
         original = error.original
         if isinstance(original, d20.RollError):
             return await ctx.send(make_error(f"ROLL ERROR - {original}"))
+        elif isinstance(original, InfactumException):
+            return await ctx.send(make_error(original))
 
     await ctx.send(
         make_error(f"UNEXPECTED ERROR!", True)  # TODO Add unexpected error text
         #  discord.Embed(title="You've Found Bug!", url="https://discord.gg/GzawEqQ",
         #  description="Join the dev discord server to report what happened!")
     )
+    print(traceback.print_exception(type(error), error, error.__traceback__))
 
 
 @bot.event
