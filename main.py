@@ -49,6 +49,9 @@ class Infactum(commands.Bot):
         self.prefixes[guild_id] = gp
         return gp
 
+    async def close(self):
+        print("Close")
+
 
 desc = (
     "A bot for managing rolls and characters for [Insert System Here]"  # TODO: Write said funny and good description
