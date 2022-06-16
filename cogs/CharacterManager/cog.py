@@ -3,6 +3,7 @@ from discord.ext import commands
 
 import re
 from utils.errors import ExternalImportError
+from cogs.Roller.utils import roll_many
 
 URL_KEY_V1_RE = re.compile(r"key=([^&#]+)")
 URL_KEY_V2_RE = re.compile(r"/spreadsheets/d/([a-zA-Z0-9-_]+)")
@@ -18,7 +19,7 @@ def extract_gsheet_id_from_url(url):
     raise ExternalImportError("LINK ERROR - THIS IS NOT A VALID GOOGLE SHEETS LINK")
 
 
-class GSheet(commands.Cog):
+class CharacterManager(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
@@ -27,3 +28,18 @@ class GSheet(commands.Cog):
         """"""  # TODO Add Description
         key = extract_gsheet_id_from_url(url)
         await ctx.send(key)
+
+    @commands.command(name="randchar", aliases=["randomcharacter"])
+    async def randchar(self, ctx):  # TODO Add Leveled Rand Char
+        """"""  # TODO Add Description
+        await roll_many(ctx, 6, "4d6kh3")
+
+    @commands.command()
+    async def pointbuy(self, ctx, points: int = 16):  # TODO Add Leveled Rand Char
+        """"""  # TODO Add Description
+        test = await ctx.send(f"Point BUy Time: {points}")
+        await test.add_reaction("✅")
+
+    @commands.Cog.listener()
+    async def on_reaction_add(self, reaction, user):
+        print("Amogus")
