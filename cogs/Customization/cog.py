@@ -25,4 +25,18 @@ class Customization(commands.Cog):
 
         edit_csv((guild_id, prefix), "db/prefixes.csv")
 
-        await ctx.send(f"```ini\n[CHANGED SERVER PREFIX TO: {prefix}]\n```")
+        await ctx.send(change_text(f"CHANGED SERVER PREFIX TO: {prefix}"))
+
+    @commands.command()
+    async def emoji(self, ctx, emoji: str = None):
+        """"""  # TODO Add Description
+
+        print(emoji)
+
+        author_id = str(ctx.author.id)
+        if emoji is None:
+            return await ctx.send(f"CURRENT EMOJI - {get_emoji(author_id)}")
+
+        edit_csv((author_id, emoji), "db/emojis.csv")
+
+        await ctx.send(change_text(f"CHANGED USER'S EMOJI TO: {emoji}"))
