@@ -1,9 +1,9 @@
-import discord
+import re
+
 from discord.ext import commands
 
-import re
-from utils.errors import ExternalImportError
 from cogs.Roller.utils import roll_many
+from utils.errors import ExternalImportError
 
 URL_KEY_V1_RE = re.compile(r"key=([^&#]+)")
 URL_KEY_V2_RE = re.compile(r"/spreadsheets/d/([a-zA-Z0-9-_]+)")
@@ -30,12 +30,12 @@ class CharacterManager(commands.Cog):
         await ctx.send(key)
 
     @commands.command(name="randchar", aliases=["randomcharacter"])
-    async def randchar(self, ctx):  # TODO Add Leveled Rand Char
+    async def randchar(self, ctx):
         """"""  # TODO Add Description
         await roll_many(ctx, 6, "4d6kh3")
 
     @commands.command()
-    async def pointbuy(self, ctx, points: int = 16):  # TODO Add Leveled Rand Char
+    async def pointbuy(self, ctx, points: int = 16, *args):
         """"""  # TODO Add Description
         await ctx.send(args)
         if "-dnd" in args:
