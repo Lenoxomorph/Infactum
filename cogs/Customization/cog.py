@@ -31,8 +31,6 @@ class Customization(commands.Cog):
     async def emoji(self, ctx, emoji: str = None):
         """"""  # TODO Add Description
 
-        print(emoji)
-
         author_id = str(ctx.author.id)
         if emoji is None:
             return await ctx.send(f"CURRENT EMOJI - {get_emoji(author_id)}")

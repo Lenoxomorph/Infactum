@@ -119,6 +119,7 @@ async def on_message(message):
         return
 
     ctx = await bot.get_context(message)
+
     if ctx.valid:
         await bot.invoke(ctx)
     elif ctx.invoked_with:
