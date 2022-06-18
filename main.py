@@ -1,5 +1,4 @@
 import os
-import sys
 import traceback
 
 import d20
@@ -8,11 +7,11 @@ from discord.ext import commands
 from discord.ext.commands import CommandInvokeError
 
 from utils import config
-from utils import functions
+from utils import csvUtils
 from utils.errors import InfactumException
 
 
-# TODO Prefix, Emoji, Init Command, Help Command, Character Stuff
+# TODO Emoji, Init Command, Help Command, Character Stuff, Iteroll
 
 async def get_prefix(the_bot, message):
     if not message.guild:
@@ -34,8 +33,6 @@ class Infactum(commands.Bot):
             description=description,
             **options,
         )
-        self.muted = set()
-
         self.prefixes = dict()
 
     async def get_guild_prefix(self, guild: discord.Guild) -> str:
@@ -43,7 +40,7 @@ class Infactum(commands.Bot):
         if guild_id in self.prefixes:
             return self.prefixes.get(guild_id, config.DEFAULT_PREFIX)
 
-        gp = functions.search_csv(guild_id, "db/prefixes.csv")
+        gp = csvUtils.search_csv(guild_id, "db/prefixes.csv")
         if gp is None:
             gp = config.DEFAULT_PREFIX
         self.prefixes[guild_id] = gp
@@ -118,9 +115,6 @@ async def on_command_error(ctx, error):
 
 @bot.event
 async def on_message(message):
-    if message.author.id in bot.muted:
-        return
-
     if message.author.bot:
         return
 
