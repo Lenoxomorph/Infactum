@@ -37,6 +37,9 @@ class CharacterManager(commands.Cog):
     @commands.command()
     async def pointbuy(self, ctx, points: int = 16):  # TODO Add Leveled Rand Char
         """"""  # TODO Add Description
+        await ctx.send(args)
+        if "-dnd" in args:
+            print("Here!")
         test = await ctx.send(f"Point BUy Time: {points}")
         await test.add_reaction("✅")
 
