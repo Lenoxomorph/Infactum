@@ -1,9 +1,9 @@
-import d20
-import discord
 from discord.ext import commands
 
+from utils.csvUtils import edit_csv
+from utils.dice import get_emoji
+from utils.functions import change_text
 from .utils import is_admin
-from utils.functions import edit_csv
 
 
 class Customization(commands.Cog):
