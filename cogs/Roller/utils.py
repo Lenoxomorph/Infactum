@@ -1,9 +1,9 @@
+import re
+
 import d20
 import discord
 
-import re
-
-from utils.dice import MultiRollContext
+from utils.dice import MultiRollContext, get_emoji
 from utils.functions import try_delete
 
 ADV_WORD_RE = re.compile(r"(?:^|\s+)(adv|dis)(?:\s+|$)")
