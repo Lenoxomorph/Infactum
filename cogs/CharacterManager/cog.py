@@ -2,11 +2,15 @@ import re
 
 from discord.ext import commands
 
+from cogs.CharacterManager.utils import PointBuyer
 from cogs.Roller.utils import roll_many
 from utils.errors import ExternalImportError
 
 URL_KEY_V1_RE = re.compile(r"key=([^&#]+)")
 URL_KEY_V2_RE = re.compile(r"/spreadsheets/d/([a-zA-Z0-9-_]+)")
+
+MAIN_POINT_BUYER = PointBuyer()
+DND_POINT_BUYER = PointBuyer(8, (8, 15), (13,))
 
 
 def extract_gsheet_id_from_url(url):
@@ -37,10 +41,11 @@ class CharacterManager(commands.Cog):
     @commands.command()
     async def pointbuy(self, ctx, points: int = 16, *args):
         """"""  # TODO Add Description
-        await ctx.send(args)
         if "-dnd" in args:
-            print("Here!")
-        test = await ctx.send(f"Point BUy Time: {points}")
+            buyer = DND_POINT_BUYER
+        else:
+            buyer = MAIN_POINT_BUYER
+        test = await ctx.send(f"Point Buy Time: {points}")
         await test.add_reaction("✅")
 
     @commands.Cog.listener()
