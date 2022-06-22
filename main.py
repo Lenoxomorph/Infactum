@@ -40,7 +40,7 @@ class Infactum(commands.Bot):
         if guild_id in self.prefixes:
             return self.prefixes.get(guild_id, config.DEFAULT_PREFIX)
 
-        gp = csvUtils.search_csv(guild_id, "db/prefixes.csv")
+        gp = ''.join(csvUtils.search_csv(guild_id, "db/prefixes.csv"))
         if gp is None:
             gp = config.DEFAULT_PREFIX
         self.prefixes[guild_id] = gp

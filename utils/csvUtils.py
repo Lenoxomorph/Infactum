@@ -5,10 +5,11 @@ from tempfile import NamedTemporaryFile
 
 def search_csv(key, path):
     with open(path, "r", newline='', encoding="utf-8") as file:
-        reader = csv.DictReader(file, delimiter=",")
+        reader = csv.reader(file, delimiter=",")
+        next(reader)
         for row in reader:
-            if row[reader.fieldnames[0]] == key:
-                return row[reader.fieldnames[1]]
+            if row[0] == key:
+                return row[1:]
 
 
 def append_csv(item, path):
