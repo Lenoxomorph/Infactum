@@ -11,3 +11,8 @@ class ExternalImportError(InfactumException):
 class GuildPermissionError(InfactumException):
     def __init__(self, msg):
         super().__init__(msg)
+
+
+class ArgumentError(InfactumException):
+    def __init__(self, msg):
+        super().__init__(msg)

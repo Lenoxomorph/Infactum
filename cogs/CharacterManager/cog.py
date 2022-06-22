@@ -4,13 +4,16 @@ from discord.ext import commands
 
 from cogs.CharacterManager.utils import PointBuyer
 from cogs.Roller.utils import roll_many
-from utils.errors import ExternalImportError
+from utils.csvUtils import search_csv
+from utils.errors import ExternalImportError, ArgumentError
+from utils.config import SYSTEM_ABV
+from utils.functions import try_delete
 
 URL_KEY_V1_RE = re.compile(r"key=([^&#]+)")
 URL_KEY_V2_RE = re.compile(r"/spreadsheets/d/([a-zA-Z0-9-_]+)")
 
-MAIN_POINT_BUYER = PointBuyer()
-DND_POINT_BUYER = PointBuyer(8, (8, 15), (13,))
+MAIN_POINT_BUYER = PointBuyer(SYSTEM_ABV, 10, (6, 18), (14, 16), 16)
+DND_POINT_BUYER = PointBuyer("D&D", 8, (8, 15), (13,), 27)
 
 
 def extract_gsheet_id_from_url(url):
@@ -39,15 +42,27 @@ class CharacterManager(commands.Cog):
         await roll_many(ctx, 6, "4d6kh3")
 
     @commands.command()
-    async def pointbuy(self, ctx, points: int = 16, *args):
+    async def pointbuy(self, ctx, *args):
         """"""  # TODO Add Description
         if "-dnd" in args:
             buyer = DND_POINT_BUYER
         else:
             buyer = MAIN_POINT_BUYER
-        test = await ctx.send(f"Point Buy Time: {points}")
+        points = buyer.points
+        for arg in args:
+            if arg.startswith("-points"):
+                try:
+                    points = int(arg[6:])
+                except ValueError:
+                    raise ArgumentError("YOU MUST PUT A NUMBER AFTER THE ARGUMENT '-points'")
+        await try_delete(ctx.message)
+        test = await buyer.embed(ctx, points)
         await test.add_reaction("✅")
 
     @commands.Cog.listener()
-    async def on_reaction_add(self, reaction, user):
-        print("Amogus")
+    async def on_raw_reaction_add(self, payload):
+        if payload.user_id != self.bot.user.id:
+            if data := search_csv(str(payload.message_id), "db/pointBuyMessages.csv"):
+                print(f"HERE! - {data}")
+        # test = (await self.bot.get_channel(payload.channel_id).fetch_message(payload.message_id)).embeds
+        # print(test[0].description)
