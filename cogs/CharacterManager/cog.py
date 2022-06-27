@@ -93,7 +93,7 @@ class CharacterManager(commands.Cog):
                 embed = buyer.update_description(data, embed)
                 await message.edit(embed=embed)
                 if remove_emoji:
-                    await message.remove_reaction(remove_emoji, self.bot.get_user(int(data[9])))
+                    await message.remove_reaction(remove_emoji, (await self.bot.fetch_user(int(data[9]))))
                 if int(data[9]) != payload.user_id:
                     data[9] = str(payload.user_id)
                     edit_csv([str(payload.message_id)] + data, "db/pointBuyMessages.csv")
