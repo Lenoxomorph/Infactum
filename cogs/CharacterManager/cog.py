@@ -40,6 +40,7 @@ class CharacterManager(commands.Cog):
     async def gsheet(self, ctx, url: str):
         """"""  # TODO Add Description
         key = extract_gsheet_id_from_url(url)
+
         await ctx.send(key)
 
     @commands.command(name="randchar", aliases=["randomcharacter"])
