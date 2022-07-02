@@ -28,3 +28,9 @@ class Roller(commands.Cog):
         """"""  # TODO Add Description
         dice, adv = string_search_adv(dice)
         await roll_many(ctx, iterations, dice, adv=adv)
+
+    @commands.command(name="iterroll", aliases=["rrr"])
+    async def rrr(self, ctx, iterations: int, dice, dc: int = None, *, args=""):
+        """"""  # TODO Add Description
+        _, adv = string_search_adv(args)
+        await roll_many(ctx, iterations, dice, dc, adv)

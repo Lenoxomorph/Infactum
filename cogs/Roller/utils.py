@@ -37,12 +37,11 @@ async def roll_many(ctx, iterations, roll_str, dc=None, adv=None):
             successes += 1
         results.append(res)
 
-    if dc is None:
-        header = f"**Results:** *Rolling {iterations} iterations*"
-        footer = f"**Total:** {sum(o.total for o in results)}"
-    else:
-        header = f"Rolling {iterations} iterations, DC {dc}..."
-        footer = f"{successes} successes, {sum(o.total for o in results)} total."
+    header = f"**Results:** *Rolling {iterations} iterations*"
+    footer = f"**Total:** {sum(o.total for o in results)}"
+    if dc:
+        header += f", **[DC {dc}]**"
+        footer += f", **Successes:** {successes}"
 
     if ast.comment:
         header = f"{ast.comment}: {header}"
