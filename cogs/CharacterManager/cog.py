@@ -66,7 +66,7 @@ class CharacterManager(commands.Cog):
         test = await buyer.embed(ctx, points)
         [await test.add_reaction(emoji) for emoji in POINT_BUY_EMOJIS]
 
-    @commands.Cog.listener() # TODO: Make DM's Work, Make Other PPl adding it work
+    @commands.Cog.listener()  # TODO: Make DM's Work, Make Other PPl adding it work
     async def on_raw_reaction_add(self, payload):
         if payload.user_id != self.bot.user.id:
             if data := search_csv(str(payload.message_id), "db/pointBuyMessages.csv"):

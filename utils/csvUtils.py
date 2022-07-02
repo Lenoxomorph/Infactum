@@ -19,7 +19,7 @@ def append_csv(item, path):
 
 
 def edit_csv(item, path):
-    temp_file = NamedTemporaryFile('w+t', delete=False, newline='', encoding="utf-8")  # Delete False
+    temp_file = NamedTemporaryFile('w+t', delete=False, newline='', encoding="utf-8")
 
     with open(path, 'r', newline='') as csv_file, temp_file:
         reader = csv.reader(csv_file, delimiter=',')

@@ -11,7 +11,7 @@ from utils import csvUtils
 from utils.errors import InfactumException
 
 
-# TODO Emoji, Init Command, Help Command, Character Stuff, Iteroll
+# TODO Init Command, Help Command, Character Stuff, Iteroll
 
 async def get_prefix(the_bot, message):
     if not message.guild:

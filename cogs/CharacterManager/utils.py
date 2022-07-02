@@ -2,7 +2,7 @@ from typing import List
 
 from discord import Embed
 
-from utils.csvUtils import append_csv, edit_csv
+from utils.csvUtils import append_csv
 
 POINT_BUY_PIC_URL = "https://surlybikes.com/uploads/bikes/_medium_image/Lowside_BK0534_Background-2000x1333.jpg"
 
