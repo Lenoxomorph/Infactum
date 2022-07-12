@@ -1,6 +1,12 @@
+import asyncio
+import datetime
 import re
+from contextlib import contextmanager
 
+import google.oauth2.service_account
+import gspread as gspread
 from discord.ext import commands
+from google.oauth2.service_account import Credentials
 
 from cogs.Roller.utils import roll_many
 from utils.config import SYSTEM_ABV
@@ -21,6 +27,8 @@ DND_POINT_BUYER = PointBuyer("D&D", 8, (8, 15), (13,), 27)
 POINT_BUY_EMOJIS = ["⬆", "⬇", "<:str:986970474087088138>", "<:dex:986970473210449960>", "<:con:986970468840005672>",
                     "<:int:986970471616634900>", "<:wis:986970470563844106>", "<:cha:986970469733400668>"]
 
+SCOPES = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
+
 
 def extract_gsheet_id_from_url(url):
     m2 = URL_KEY_V2_RE.search(url)
@@ -33,8 +41,44 @@ def extract_gsheet_id_from_url(url):
 
 
 class CharacterManager(commands.Cog):
+    g_client = None
+    _token_expiry = None
+
     def __init__(self, bot):
         self.bot = bot
+        CharacterManager._init_gsheet_client()
+
+    @staticmethod
+    @contextmanager
+    def _client_lock():
+        if CharacterManager._client_initializing:
+            raise ExternalImportError("ERROR: STILL CONNECTED TO GOOGLE")
+        CharacterManager._client_initializing = True
+        yield
+        CharacterManager._client_initializing = False
+
+    @staticmethod
+    async def _init_gsheet_client():
+        with CharacterManager._client_lock():
+
+            def _():
+                credentials = Credentials.from_service_account_file("infactum-google.json", scopes=SCOPES)
+                return gspread.authorize(credentials)
+
+            try:
+                CharacterManager.g_client = await asyncio.get_event_loop().run_in_executor(None, _)
+            except Exception as e:
+                CharacterManager._client_initializing = False
+                raise e
+        # noinspection PyProtectedMember
+        CharacterManager._token_expiry = datetime.datetime.now() + datetime.timedelta(
+            seconds=google.oauth2.service_account._DEFAULT_TOKEN_LIFETIME_SECS
+        )
+        print("Logged into Google")
+
+    @staticmethod
+    def _is_expired():
+        return datetime.datetime.now() > CharacterManager._token_expiry
 
     @commands.command(name="gsheet", aliases=["gs"])
     async def gsheet(self, ctx, url: str):
