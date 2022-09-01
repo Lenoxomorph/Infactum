@@ -53,7 +53,7 @@ class CharacterManager(commands.Cog):
     @contextmanager
     def _client_lock():
         if CharacterManager._client_initializing:
-            raise ExternalImportError("ERROR: STILL CONNECTED TO GOOGLE")
+            raise ExternalImportError("ERROR: STILL CONNECTING TO GOOGLE")
         CharacterManager._client_initializing = True
         yield
         CharacterManager._client_initializing = False
