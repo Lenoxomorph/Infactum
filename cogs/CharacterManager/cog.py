@@ -6,6 +6,7 @@ from contextlib import contextmanager
 import google.oauth2.service_account
 import gspread as gspread
 from discord.ext import commands
+from google.auth.transport.requests import Request
 from google.oauth2.service_account import Credentials
 
 from cogs.Roller.utils import roll_many
@@ -42,11 +43,11 @@ def extract_gsheet_id_from_url(url):
 
 class CharacterManager(commands.Cog):
     g_client = None
+    _client_initializing = False
     _token_expiry = None
 
     def __init__(self, bot):
         self.bot = bot
-        CharacterManager._init_gsheet_client()
 
     @staticmethod
     @contextmanager
@@ -77,6 +78,23 @@ class CharacterManager(commands.Cog):
         print("Logged into Google")
 
     @staticmethod
+    async def _refresh_google_token():
+        with CharacterManager._client_lock():
+
+            def _():
+                CharacterManager.g_client.auth.refresh(request=Request())
+                CharacterManager.g_client.session.headers.update(
+                    {"Authorization": "Bearer %s" % CharacterManager.g_client.auth.token}
+                )
+
+            try:
+                await asyncio.get_event_loop().run_in_executor(None, _)
+            except Exception as e:
+                CharacterManager._client_initializing = False
+                raise e
+        print("Refreshed Google Token")
+
+    @staticmethod
     def _is_expired():
         return datetime.datetime.now() > CharacterManager._token_expiry
 
@@ -85,6 +103,10 @@ class CharacterManager(commands.Cog):
         """"""  # TODO Add Description
         key = extract_gsheet_id_from_url(url)
         await ctx.send(f"Key is: {key}")
+        if CharacterManager.g_client is None:
+            await self._init_gsheet_client()
+        elif CharacterManager._is_expired():
+            await self._refresh_google_token()
 
     @commands.command(name="randchar", aliases=["randomcharacter"])
     async def randchar(self, ctx):
@@ -109,7 +131,7 @@ class CharacterManager(commands.Cog):
         test = await buyer.embed(ctx, points)
         [await test.add_reaction(emoji) for emoji in POINT_BUY_EMOJIS]
 
-    @commands.Cog.listener()  # TODO: Make DM's Work, Make Other PPl adding it work
+    @commands.Cog.listener()  # TODO: Make DMs Work, Make Other PPl adding it work
     async def on_raw_reaction_add(self, payload):
         if payload.user_id != self.bot.user.id:
             if data := search_csv(str(payload.message_id), "db/pointBuyMessages.csv"):
