@@ -18,6 +18,12 @@ def append_csv(item, path):
         writer.writerow(item)
 
 
+def write_csv(rows, path):
+    with open(path, "w", newline='', encoding="utf-8") as file:
+        writer = csv.writer(file)
+        writer.writerows(rows)
+
+
 def edit_csv(item, path):
     temp_file = NamedTemporaryFile('w+t', delete=False, newline='', encoding="utf-8")
 
