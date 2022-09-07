@@ -6,7 +6,7 @@ import discord
 from utils.dice import MultiRollContext, get_emoji
 from utils.functions import try_delete
 
-ADV_WORD_RE = re.compile(r"(?:^|\s+)(adv|dis)(?:\s+|$)")
+ADV_WORD_RE = re.compile(r"(?:^|\s+)(adv|dis|advantage|disadvantage)(?:\s+|$)")
 
 
 def string_search_adv(dice_str: str):

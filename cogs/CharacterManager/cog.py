@@ -12,10 +12,10 @@ from discord.ext import commands
 from google.auth.transport.requests import Request
 from google.oauth2.service_account import Credentials
 
-from cogs.Roller.utils import roll_many, string_search_adv, mention_user
+from cogs.Roller.utils import roll_many, string_search_adv
 from utils.config import SYSTEM_ABV
 from utils.csvUtils import search_csv, edit_csv, write_csv, read_line, read_csv
-from utils.dice import MainStringifier, adv_dis_to_roll
+from utils.dice import adv_dis_to_roll
 from utils.errors import ExternalImportError, ArgumentError, UserDatabaseError, make_success, InputMatchError
 from utils.functions import try_delete, search_list
 from utils.lists import skills
@@ -27,7 +27,8 @@ LOWERED_STAT_LIST = [stat.lower() for stat in STAT_LIST]
 URL_KEY_V1_RE = re.compile(r"key=([^&#]+)")
 URL_KEY_V2_RE = re.compile(r"/spreadsheets/d/([a-zA-Z0-9-_]+)")
 
-ADV_DIS_RE = re.compile(r"(-adv\s?(-?\d+))")
+ADV_DIS_RE = re.compile(r"(-(?:adv|advantage)\s?(-?\d+))")
+KNOWLEDGE_RE = re.compile(r"(-(?:kno|knowledge)\s?(.*))")
 
 MAIN_POINT_BUYER = PointBuyer(SYSTEM_ABV, 10, (6, 18), (14, 16), 16)
 DND_POINT_BUYER = PointBuyer("D&D", 8, (8, 15), (13,), 27)
@@ -178,6 +179,18 @@ class CharacterManager(commands.Cog):
         return return_dict
 
     @staticmethod
+    def _get_character_knowledge_dictionary(path):
+        skill_dict = CharacterManager._get_character_skill_dictionary(path)
+        bad_keys = []
+        for key in skill_dict:
+            if 11 < skill_dict[key] < 18:
+                continue
+            bad_keys.append(key)
+        for key in bad_keys:
+            skill_dict.pop(key)
+        return skill_dict
+
+    @staticmethod
     def _blank_char_embed(path):
         lines = read_csv(f"{path}/info.csv")
         embed = discord.Embed(colour=discord.Colour(int(lines[4][0], 16)))
@@ -248,19 +261,31 @@ class CharacterManager(commands.Cog):
             adv_num += int(match.group(2))
             input_skill = input_skill[: (match.start(1))] + input_skill[match.end():]
         input_skill, adv = string_search_adv(input_skill)
-        input_skill = input_skill.strip()
         adv_num += int(adv)
         path, name = self._char_path(ctx.author.id)
         skill_path = f"{path}/skills.csv"
         extra_skill_dict = self._get_character_skill_dictionary(skill_path)
+
+        mod = 0
+
+        if match := KNOWLEDGE_RE.search(input_skill):
+            knowledge_dict = self._get_character_knowledge_dictionary(skill_path)
+            if kno_match := search_list(match.group(2), [key for key in knowledge_dict]):
+                mod += int(int(read_line(knowledge_dict[kno_match[1]], skill_path)[0]) / 2)
+            else:
+                raise InputMatchError("ERROR: NOT A KNOWLEDGE")
+            input_skill = input_skill[: (match.start(1))] + input_skill[match.end():]
+
+        input_skill = input_skill.strip()
 
         if match := search_list(input_skill, skills + [key for key in extra_skill_dict]):
             line_num = match[0]
             if line_num >= len(skills):
                 line_num = extra_skill_dict[match[1]]
             line = read_line(line_num, skill_path)
-            mod = f"+{line[0]}" if int(line[0]) >= 0 else f"{line[0]}"
-            res = roll(f"{adv_dis_to_roll(adv_num+int(line[2]))}{mod}")
+            mod += int(line[0])
+            mod_str = f"+{mod}" if int(mod) >= 0 else f"{mod}"
+            res = roll(f"{adv_dis_to_roll(adv_num + int(line[2]))}{mod_str}")
             embed = self._blank_char_embed(path)
             embed.title = f"{name} makes a {match[1]} check!"
             embed.description = str(res)
