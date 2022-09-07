@@ -37,3 +37,13 @@ def edit_csv(item, path):
 
     shutil.move(temp_file.name, path)
     append_csv(item, path)
+
+
+def read_line(row_num, path):
+    return read_csv(path)[row_num]
+
+
+def read_csv(path):
+    with open(path, "r", newline='', encoding="utf-8") as file:
+        reader = csv.reader(file, delimiter=',')
+        return list(reader)

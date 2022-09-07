@@ -11,6 +11,15 @@ def get_emoji(author_id):
     return emoji
 
 
+def adv_dis_to_roll(adv):
+    suffix = ""
+    if adv > 0:
+        suffix = "kh1"
+    elif adv < 0:
+        suffix = "kl1"
+    return f"{abs(adv) + 1}d20{suffix}"
+
+
 class MainStringifier(d20.MarkdownStringifier):
     def _str_expression(self, node):
         return f"**{node.comment or 'Result'}**: {self._stringify(node.roll)}\n**Total**: {int(node.total)}"

@@ -8,7 +8,7 @@ from discord.ext.commands import CommandInvokeError
 
 from utils import config
 from utils import csvUtils
-from utils.errors import InfactumException
+from utils.errors import InfactumException, make_error
 
 
 # TODO Init Command, Help Command, Character Stuff, Iteroll
@@ -19,10 +19,6 @@ async def get_prefix(the_bot, message):
     gp = await the_bot.get_guild_prefix(message.guild)
     return commands.when_mentioned_or(gp)(the_bot, message)
     pass
-
-
-def make_error(message, error: bool = False):
-    return f"```{'css' if error else 'fix'}\n[ERROR: {message}]\n```"
 
 
 class Infactum(commands.Bot):
