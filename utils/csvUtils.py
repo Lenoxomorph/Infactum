@@ -47,3 +47,11 @@ def read_csv(path):
     with open(path, "r", newline='', encoding="utf-8") as file:
         reader = csv.reader(file, delimiter=',')
         return list(reader)
+
+
+def read_keys(path):
+    with open(path, "r", newline='', encoding="utf-8") as file:
+        return_list = []
+        for line in csv.reader(file, delimiter=','):
+            return_list.append(line[0])
+        return return_list

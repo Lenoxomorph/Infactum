@@ -13,9 +13,14 @@ def change_text(text):
 
 
 def search_list(term, s_list):
+    term = term.strip()
     exact_matches = [(index, a) for index, a in enumerate(s_list) if term.lower() == a.lower()]
     if exact_matches:
         return exact_matches[0]
     partial_matches = [(index, a) for index, a in enumerate(s_list) if term.lower() in a.lower()]
     if partial_matches:
         return partial_matches[0]
+
+
+def format_mod(mod):
+    return f"+{mod}" if mod >= 0 else f"{mod}"

@@ -14,10 +14,10 @@ from google.oauth2.service_account import Credentials
 
 from cogs.Roller.utils import roll_many, string_search_adv
 from utils.config import SYSTEM_ABV
-from utils.csvUtils import search_csv, edit_csv, write_csv, read_line, read_csv
+from utils.csvUtils import search_csv, edit_csv, write_csv, read_line, read_csv, read_keys
 from utils.dice import adv_dis_to_roll
 from utils.errors import ExternalImportError, ArgumentError, UserDatabaseError, make_success, InputMatchError
-from utils.functions import try_delete, search_list
+from utils.functions import try_delete, search_list, format_mod
 from utils.lists import skills
 from .utils import PointBuyer
 from .utils import STAT_LIST
@@ -28,7 +28,9 @@ URL_KEY_V1_RE = re.compile(r"key=([^&#]+)")
 URL_KEY_V2_RE = re.compile(r"/spreadsheets/d/([a-zA-Z0-9-_]+)")
 
 ADV_DIS_RE = re.compile(r"(-(?:adv|advantage)\s?(-?\d+))")
-KNOWLEDGE_RE = re.compile(r"(-(?:kno|knowledge)\s?(.*))")
+KNOWLEDGE_RE = re.compile(r"(-(?:know|knowledge)\s?(.*))")
+RANGE_RE = re.compile(r"(-(?:ran|range)\s?(\d+))")
+MOD_RE = re.compile(r"([+-]\s*\d+)")
 
 MAIN_POINT_BUYER = PointBuyer(SYSTEM_ABV, 10, (6, 18), (14, 16), 16)
 DND_POINT_BUYER = PointBuyer("D&D", 8, (8, 15), (13,), 27)
@@ -197,6 +199,14 @@ class CharacterManager(commands.Cog):
         embed.set_thumbnail(url=lines[5][0])
         return embed
 
+    @staticmethod
+    def _extract_argument(re_str, input_str, on_fail=""):
+        if match := re_str.search(input_str):
+            input_str = input_str[: (match.start(1))] + input_str[match.end():]
+        elif on_fail:
+            raise InputMatchError(on_fail)
+        return input_str, match
+
     @commands.command(name="gsheet", aliases=["gs"])
     async def gsheet(self, ctx, url: str):
         """"""  # TODO Add Description
@@ -255,7 +265,7 @@ class CharacterManager(commands.Cog):
 
     @commands.command(name="check", aliases=["chk"])
     async def check(self, ctx, *, input_skill):
-        """"""  # TODO Add Description, Add Knowledge Adding, Extra ADVS
+        """"""  # TODO Add Description
         adv_num = 0
         if match := ADV_DIS_RE.search(input_skill):
             adv_num += int(match.group(2))
@@ -266,25 +276,27 @@ class CharacterManager(commands.Cog):
         skill_path = f"{path}/skills.csv"
         extra_skill_dict = self._get_character_skill_dictionary(skill_path)
 
-        mod = 0
+        mods = []
+
+        if match := MOD_RE.search(input_skill):
+            mods.append(format_mod(int(match.group(1))))
+            input_skill = input_skill[: (match.start(1))] + input_skill[match.end():]
 
         if match := KNOWLEDGE_RE.search(input_skill):
             knowledge_dict = self._get_character_knowledge_dictionary(skill_path)
             if kno_match := search_list(match.group(2), [key for key in knowledge_dict]):
-                mod += int(int(read_line(knowledge_dict[kno_match[1]], skill_path)[0]) / 2)
+                mods.append(format_mod(int(int(read_line(knowledge_dict[kno_match[1]], skill_path)[0]) / 2)))
             else:
                 raise InputMatchError("ERROR: NOT A KNOWLEDGE")
             input_skill = input_skill[: (match.start(1))] + input_skill[match.end():]
-
-        input_skill = input_skill.strip()
 
         if match := search_list(input_skill, skills + [key for key in extra_skill_dict]):
             line_num = match[0]
             if line_num >= len(skills):
                 line_num = extra_skill_dict[match[1]]
             line = read_line(line_num, skill_path)
-            mod += int(line[0])
-            mod_str = f"+{mod}" if int(mod) >= 0 else f"{mod}"
+            mods = [format_mod(int(line[0]))] + mods
+            mod_str = " ".join(mods)
             res = roll(f"{adv_dis_to_roll(adv_num + int(line[2]))}{mod_str}")
             embed = self._blank_char_embed(path)
             embed.title = f"{name} makes a {match[1]} check!"
@@ -293,6 +305,60 @@ class CharacterManager(commands.Cog):
             await ctx.send(embed=embed)
         else:
             raise InputMatchError("ERROR: NOT A SKILL")
+
+    @commands.command(name="attack", aliases=["atk"])
+    async def attack(self, ctx, *, input_attack):
+        """"""  # TODO Add Description
+        adv_num = 0
+        input_attack, match = self._extract_argument(ADV_DIS_RE, input_attack)
+        if match:
+            adv_num += int(match.group(2))
+        input_attack, adv = string_search_adv(input_attack)
+        adv_num += int(adv)
+        path, name = self._char_path(ctx.author.id)
+        attack_path = f"{path}/attacks.csv"
+
+        mods = []
+
+        input_attack, match = self._extract_argument(MOD_RE, input_attack)
+        if match:
+            mods.append(format_mod(int(match.group(1))))
+
+        atk_range = None
+        input_attack, match = self._extract_argument(RANGE_RE, input_attack)
+        if match:
+            atk_range = int(match.group(2))
+
+        input_attack, match = self._extract_argument(KNOWLEDGE_RE, input_attack)
+        if match:
+            knowledge_dict = self._get_character_knowledge_dictionary(f"{path}/skills.csv")
+            if kno_match := search_list(match.group(2), [key for key in knowledge_dict]):
+                mods.append(format_mod(int(int(read_line(knowledge_dict[kno_match[1]], f"{path}/skills.csv")[0]) / 2)))
+            else:
+                raise InputMatchError("ERROR: NOT A KNOWLEDGE")
+
+        if match := search_list(input_attack, read_keys(attack_path)):
+            line = read_line(match[0], attack_path)
+
+            atk_name = line[0]
+            atk_dice = line[3]
+            atk_type = line[4]
+
+            mods = [format_mod(int(line[1]))] + mods
+            mod_str = " ".join(mods)
+
+            adv_num += int(line[2]) - 1
+
+            res = roll(f"{adv_dis_to_roll(adv_num)}{mod_str}")
+
+            print(res)
+            # embed = self._blank_char_embed(path)
+            # embed.title = f"{name} makes a {match[1]} check!"
+            # embed.description = str(res)
+            # await try_delete(ctx.message)
+            # await ctx.send(embed=embed)
+        else:
+            raise InputMatchError("ERROR: NOT A ATTACK")
 
     @commands.command(name="randchar", aliases=["randomcharacter"])
     async def randchar(self, ctx):
