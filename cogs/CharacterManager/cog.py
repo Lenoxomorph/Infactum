@@ -1,5 +1,6 @@
 import asyncio
 import datetime
+import math
 import re
 from contextlib import contextmanager
 from pathlib import Path
@@ -39,6 +40,8 @@ POINT_BUY_EMOJIS = ["⬆", "⬇", "<:str:986970474087088138>", "<:dex:9869704732
                     "<:int:986970471616634900>", "<:wis:986970470563844106>", "<:cha:986970469733400668>"]
 
 SCOPES = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
+
+VOWELS = ['a', 'e', 'i', 'o', 'u']
 
 SKILL_S_CELLS = ((31, 1), (31, 25))
 SKILL_LENGTH = 16
@@ -195,8 +198,8 @@ class CharacterManager(commands.Cog):
     @staticmethod
     def _blank_char_embed(path):
         lines = read_csv(f"{path}/info.csv")
-        embed = discord.Embed(colour=discord.Colour(int(lines[4][0], 16)))
-        embed.set_thumbnail(url=lines[5][0])
+        embed = discord.Embed(colour=discord.Colour(int(lines[5][0], 16)))
+        embed.set_thumbnail(url=lines[6][0])
         return embed
 
     @staticmethod
@@ -207,14 +210,16 @@ class CharacterManager(commands.Cog):
             raise InputMatchError(on_fail)
         return input_str, match
 
-    @commands.command(name="gsheet", aliases=["gs"])
-    async def gsheet(self, ctx, url: str):
-        """"""  # TODO Add Description
-        key = extract_gsheet_id_from_url(url)
+    @staticmethod
+    def _a_an(input_str):
+        return f"{'an' if input_str[0] in VOWELS else 'a'} {input_str}"
+
+    async def _update_char(self, key, author_id):
         if CharacterManager.g_client is None:
             await self._init_gsheet_client()
         elif CharacterManager._is_expired():
             await self._refresh_google_token()
+
         doc = self.g_client.open_by_key(key)
         sheet = doc.sheet1
         values = sheet.get_all_values()
@@ -236,32 +241,52 @@ class CharacterManager(commands.Cog):
             f_grid = []
             for col in range(0, (width - 1) * width_space + 1, width_space):
                 for row in range(0, (height - 1) * height_space + 1, height_space):
-                    f_grid.append([self._cell_convert(values[start_cell[0] + row][start_cell[1] + col]), '', 0])
+                    f_grid.append(
+                        [CharacterManager._cell_convert(values[start_cell[0] + row][start_cell[1] + col]), '', 0])
             return f_grid
 
         def cells(coords):
             f_cells = []
             for coord in coords:
-                f_cells.append([self._cell_convert(values[coord[0]][coord[1]])])
+                f_cells.append([CharacterManager._cell_convert(values[coord[0]][coord[1]])])
             return f_cells
 
         name = cells(NAME_CELL)[0][0]
-        info = cells(INFO_CELLS)
+        info = [[key]] + cells(INFO_CELLS)
         skills = table(SKILL_S_CELLS, SKILL_LENGTH, SKILL_COLS, False)
-        skills.append([self._cell_convert(values[9][12]), '', 0])
+        skills.append([CharacterManager._cell_convert(values[9][12]), '', 0])
         skills.extend(grid(STATS_S_CELL, STATS_WIDTH, STATS_WIDTH_SPACE, STATS_HEIGHT, STATS_HEIGHT_SPACE))
         skills.extend(grid(SAVES_S_CELL, SAVES_WIDTH, SAVES_WIDTH_SPACE, SAVES_HEIGHT, SAVES_HEIGHT_SPACE))
         attacks = table(RANGED_S_CELLS, RANGED_LENGTH, RANGED_COLS, True)
         attacks.extend(table(MELEE_S_CELLS, MELEE_LENGTH, MELEE_COLS, True))
 
-        path = self._set_user_character(ctx.author.id, name)
-        await ctx.send(make_success(f"{name} IS NOW YOUR ACTIVE CHARACTER"))
+        path = CharacterManager._set_user_character(author_id, name)
 
-        self._write_char_file(path, info, "info")
-        self._write_char_file(path, skills, "skills")
-        self._write_char_file(path, attacks, "attacks")
+        CharacterManager._write_char_file(path, info, "info")
+        CharacterManager._write_char_file(path, skills, "skills")
+        CharacterManager._write_char_file(path, attacks, "attacks")
+
+        return name
+
+    @commands.command(name="gsheet", aliases=["gs"])
+    async def gsheet(self, ctx, url: str):
+        """"""  # TODO Add Description
+        key = extract_gsheet_id_from_url(url)
+
+        name = await self._update_char(key, ctx.author.id)
 
         await ctx.send(make_success(f"{name} HAS BEEN CREATED"))
+        await ctx.send(make_success(f"{name} IS NOW YOUR ACTIVE CHARACTER"))
+
+    @commands.command(name="update", aliases=["up"])
+    async def update(self, ctx):
+        """"""  # TODO Add Description
+        path, name = self._char_path(ctx.author.id)
+        lines = read_csv(f"{path}/info.csv")
+        key = lines[0][0]
+        await self._update_char(key, ctx.author.id)
+
+        await ctx.send(make_success(f"{name} HAS BEEN UPDATED"))
 
     @commands.command(name="check", aliases=["chk"])
     async def check(self, ctx, *, input_skill):
@@ -344,19 +369,23 @@ class CharacterManager(commands.Cog):
             atk_dice = line[3]
             atk_type = line[4]
 
+            if atk_range:
+                if len(line) > 5:
+                    mods.append(format_mod(math.floor(atk_range / int(line[5])) * int(line[6])))
+
             mods = [format_mod(int(line[1]))] + mods
             mod_str = " ".join(mods)
 
             adv_num += int(line[2]) - 1
 
-            res = roll(f"{adv_dis_to_roll(adv_num)}{mod_str}")
+            to_hit = roll(f"{adv_dis_to_roll(adv_num)}{mod_str}")
+            damage = roll(atk_dice)
 
-            print(res)
-            # embed = self._blank_char_embed(path)
-            # embed.title = f"{name} makes a {match[1]} check!"
-            # embed.description = str(res)
-            # await try_delete(ctx.message)
-            # await ctx.send(embed=embed)
+            embed = self._blank_char_embed(path)
+            embed.title = f"{name} attacks with {self._a_an(atk_name)}"
+            embed.description = f"**To Hit:** {str(to_hit)}\n**Damage:** {str(damage)}"
+            await try_delete(ctx.message)
+            await ctx.send(embed=embed)
         else:
             raise InputMatchError("ERROR: NOT A ATTACK")
 
