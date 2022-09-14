@@ -12,6 +12,7 @@ from utils.errors import InfactumException, make_error
 
 
 # TODO Init Command, Help Command, Character Stuff, Iteroll
+# TODO Grapple Roll, Bleeding, Sanity,
 
 async def get_prefix(the_bot, message):
     if not message.guild:
