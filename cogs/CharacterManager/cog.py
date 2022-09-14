@@ -389,6 +389,18 @@ class CharacterManager(commands.Cog):
         else:
             raise InputMatchError("ERROR: NOT A ATTACK")
 
+    # @commands.command(name="funny", aliases=["fun"])
+    # async def funny(self, ctx):
+    #     embed = discord.Embed(colour=discord.Colour(int("2A2A2A", 16)))
+    #     embed.set_image(url="https://i.ytimg.com/vi/oGl38onQJf0/maxresdefault.jpg")
+    #     embed.title = f"Scoir | Download and Buy Today - Epic Games Store"
+    #     embed.url = "https://www.scoir.com/"
+    #     embed.description = "Download and play Submerged: Hidden Depths at the Epic Games Store. Check for platform availability and price!"
+    #     embed.set_author(name="Epic Games Store", url="https://store.epicgames.com/en-US/")
+    #     # embed.description = f"**To Hit:** {str(to_hit)}\n**Damage:** {str(damage)}"
+    #     await try_delete(ctx.message)
+    #     await ctx.send("**Scoir is free on the Epic Games Store until November 1, 2022 1:55 PM!**", embed=embed)
+
     @commands.command(name="randchar", aliases=["randomcharacter"])
     async def randchar(self, ctx):
         """"""  # TODO Add Description
