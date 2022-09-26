@@ -1,6 +1,7 @@
 import asyncio
 import datetime
 import math
+import os
 import re
 from contextlib import contextmanager
 from pathlib import Path
@@ -69,6 +70,8 @@ SAVES_HEIGHT_SPACE = 1
 
 NAME_CELL = ((1, 6),)
 INFO_CELLS = ((5, 6), (15, 8), (15, 11), (15, 14), (58, 39), (60, 39))
+
+SANITY_CELL = (8, 27)
 
 
 def extract_gsheet_id_from_url(url):
@@ -166,7 +169,7 @@ class CharacterManager(commands.Cog):
     @staticmethod
     def _set_user_character(user_id, char_name):
         path = CharacterManager._user_path(user_id)
-        Path(path + char_name).mkdir(parents=True, exist_ok=True)
+        Path(path).mkdir(parents=True, exist_ok=True)
         with open(path + "user_id.txt", "w") as f:
             f.write(char_name)
         return path + char_name + "/"
@@ -214,13 +217,20 @@ class CharacterManager(commands.Cog):
     def _a_an(input_str):
         return f"{'an' if input_str[0] in VOWELS else 'a'} {input_str}"
 
-    async def _update_char(self, key, author_id):
+    @staticmethod
+    def _get_char_key(path):
+        lines = read_csv(f"{path}/info.csv")
+        return lines[0][0]
+
+    async def _get_char_doc(self, key):
         if CharacterManager.g_client is None:
             await self._init_gsheet_client()
         elif CharacterManager._is_expired():
             await self._refresh_google_token()
+        return self.g_client.open_by_key(key)
 
-        doc = self.g_client.open_by_key(key)
+    async def _update_char(self, key, author_id):
+        doc = await self._get_char_doc(key)
         sheet = doc.sheet1
         values = sheet.get_all_values()
 
@@ -262,6 +272,8 @@ class CharacterManager(commands.Cog):
 
         path = CharacterManager._set_user_character(author_id, name)
 
+        Path(path + name).mkdir(parents=True, exist_ok=True)
+
         CharacterManager._write_char_file(path, info, "info")
         CharacterManager._write_char_file(path, skills, "skills")
         CharacterManager._write_char_file(path, attacks, "attacks")
@@ -282,11 +294,35 @@ class CharacterManager(commands.Cog):
     async def update(self, ctx):
         """"""  # TODO Add Description
         path, name = self._char_path(ctx.author.id)
-        lines = read_csv(f"{path}/info.csv")
-        key = lines[0][0]
+        key = self._get_char_key(path)
         await self._update_char(key, ctx.author.id)
 
         await ctx.send(make_success(f"{name} HAS BEEN UPDATED"))
+
+    @commands.command(name="link", aliases=["lk"])
+    async def link(self, ctx):
+        """"""  # TODO Add Description
+        path, name = self._char_path(ctx.author.id)
+        key = self._get_char_key(path)
+
+        embed = self._blank_char_embed(path)
+        embed.title = f"{name}'s Link Is:"
+        embed.description = f"https://docs.google.com/spreadsheets/d/{key}/"
+
+        await ctx.send(embed=embed)
+
+    @commands.command(name="character", aliases=["char"])
+    async def character(self, ctx, name: str):
+        """"""  # TODO Add Description
+        path = self._user_path(ctx.author.id)
+        if match := search_list(name, next(os.walk(path))[1]):
+            self._set_user_character(ctx.author.id, match[1])
+            embed = self._blank_char_embed(path + match[1])
+            embed.title = f"{match[1]} is now your active character!"
+            await try_delete(ctx.message)
+            await ctx.send(embed=embed)
+        else:
+            raise InputMatchError("ERROR: NOT A CHARACTER")
 
     @commands.command(name="check", aliases=["chk"])
     async def check(self, ctx, *, input_skill):
@@ -317,15 +353,25 @@ class CharacterManager(commands.Cog):
 
         if match := search_list(input_skill, skills + [key for key in extra_skill_dict]):
             line_num = match[0]
+            description = ""
             if line_num >= len(skills):
                 line_num = extra_skill_dict[match[1]]
-            line = read_line(line_num, skill_path)
-            mods = [format_mod(int(line[0]))] + mods
-            mod_str = " ".join(mods)
-            res = roll(f"{adv_dis_to_roll(adv_num + int(line[2]))}{mod_str}")
+            if line_num == len(skills) - 1:
+                key = self._get_char_key(path)
+                doc = await self._get_char_doc(key)
+                sanity = int(doc.sheet1.cell(9, 28).value)
+                res = roll("1d100")
+                succeed = sanity > int(res)
+                description = f"{str(res)}\n`{int(res)}` *{'<' if succeed else '>'}* `{sanity}` : ***{'Success' if succeed else 'Failure'}***"
+            else:
+                line = read_line(line_num, skill_path)
+                mods = [format_mod(int(line[0]))] + mods
+                mod_str = " ".join(mods)
+                res = roll(f"{adv_dis_to_roll(adv_num + int(line[2]))}{mod_str}")
+                description = str(res)
             embed = self._blank_char_embed(path)
             embed.title = f"{name} makes a {match[1]} check!"
-            embed.description = str(res)
+            embed.description = description
             await try_delete(ctx.message)
             await ctx.send(embed=embed)
         else:
@@ -383,7 +429,7 @@ class CharacterManager(commands.Cog):
 
             embed = self._blank_char_embed(path)
             embed.title = f"{name} attacks with {self._a_an(atk_name)}"
-            embed.description = f"**To Hit:** {str(to_hit)}\n**Damage:** {str(damage)}"
+            embed.description = f"**To Hit:** {str(to_hit)}\n**Damage:** {str(damage)} ***{atk_type}***"
             await try_delete(ctx.message)
             await ctx.send(embed=embed)
         else:
