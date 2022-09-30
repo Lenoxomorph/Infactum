@@ -3,3 +3,5 @@ skills = ["Climb", "Jump", "Swim", "Acrobatics", "Hide", "MoveSilently", "OpenLo
           "Research", "Search", "Animal Handling", "First Aid", "Listen", "Navigation", "Spot", "Survival", "Bluff",
           "Diplomacy", "Disguise", "Intimidate", "Performance", "Sense Motive", "Initiative", "Strength", "Dexterity",
           "Constitution", "Intelligence", "Wisdom", "Charisma", "Fortitude", "Reflex", "Will", "Sanity"]
+
+attacks = ["Melee", "Ranged", "Grapple"]

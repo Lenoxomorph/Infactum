@@ -20,7 +20,7 @@ from utils.csvUtils import search_csv, edit_csv, write_csv, read_line, read_csv,
 from utils.dice import adv_dis_to_roll
 from utils.errors import ExternalImportError, ArgumentError, UserDatabaseError, make_success, InputMatchError
 from utils.functions import try_delete, search_list, format_mod
-from utils.lists import skills
+from utils.lists import skills, attacks
 from .utils import PointBuyer
 from .utils import STAT_LIST
 
@@ -353,7 +353,6 @@ class CharacterManager(commands.Cog):
 
         if match := search_list(input_skill, skills + [key for key in extra_skill_dict]):
             line_num = match[0]
-            description = ""
             if line_num >= len(skills):
                 line_num = extra_skill_dict[match[1]]
             if line_num == len(skills) - 1:
@@ -408,7 +407,7 @@ class CharacterManager(commands.Cog):
             else:
                 raise InputMatchError("ERROR: NOT A KNOWLEDGE")
 
-        if match := search_list(input_attack, read_keys(attack_path)):
+        if match := search_list(input_attack, read_keys(attack_path) + attacks):
             line = read_line(match[0], attack_path)
 
             atk_name = line[0]
