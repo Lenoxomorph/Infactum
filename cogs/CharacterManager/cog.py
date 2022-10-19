@@ -20,7 +20,7 @@ from utils.csvUtils import search_csv, edit_csv, write_csv, read_line, read_csv,
 from utils.dice import adv_dis_to_roll
 from utils.errors import ExternalImportError, ArgumentError, UserDatabaseError, make_success, InputMatchError
 from utils.functions import try_delete, search_list, format_mod
-from utils.lists import skills, attacks
+from utils.lists import skills
 from .utils import PointBuyer
 from .utils import STAT_LIST
 
@@ -67,6 +67,12 @@ SAVES_WIDTH = 3
 SAVES_WIDTH_SPACE = 4
 SAVES_HEIGHT = 1
 SAVES_HEIGHT_SPACE = 1
+
+ATTACKS_S_CELL = (51, 1)
+ATTACKS_WIDTH = 3
+ATTACKS_WIDTH_SPACE = 4
+ATTACKS_HEIGHT = 1
+ATTACKS_HEIGHT_SPACE = 1
 
 NAME_CELL = ((1, 6),)
 INFO_CELLS = ((5, 6), (15, 8), (15, 11), (15, 14), (58, 39), (60, 39))
@@ -267,6 +273,7 @@ class CharacterManager(commands.Cog):
         skills.append([CharacterManager._cell_convert(values[9][12]), '', 0])
         skills.extend(grid(STATS_S_CELL, STATS_WIDTH, STATS_WIDTH_SPACE, STATS_HEIGHT, STATS_HEIGHT_SPACE))
         skills.extend(grid(SAVES_S_CELL, SAVES_WIDTH, SAVES_WIDTH_SPACE, SAVES_HEIGHT, SAVES_HEIGHT_SPACE))
+        skills.extend(grid(ATTACKS_S_CELL, ATTACKS_WIDTH, ATTACKS_WIDTH_SPACE, ATTACKS_HEIGHT, ATTACKS_HEIGHT_SPACE))
         attacks = table(RANGED_S_CELLS, RANGED_LENGTH, RANGED_COLS, True)
         attacks.extend(table(MELEE_S_CELLS, MELEE_LENGTH, MELEE_COLS, True))
 
@@ -407,7 +414,7 @@ class CharacterManager(commands.Cog):
             else:
                 raise InputMatchError("ERROR: NOT A KNOWLEDGE")
 
-        if match := search_list(input_attack, read_keys(attack_path) + attacks):
+        if match := search_list(input_attack, read_keys(attack_path)):
             line = read_line(match[0], attack_path)
 
             atk_name = line[0]

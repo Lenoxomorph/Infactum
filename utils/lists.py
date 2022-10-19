@@ -2,6 +2,5 @@ skills = ["Climb", "Jump", "Swim", "Acrobatics", "Hide", "MoveSilently", "OpenLo
           "Sleight of Hand", "Craft", "Knowledge", "Knowledge", "Knowledge", "Knowledge", "Knowledge", "Knowledge",
           "Research", "Search", "Animal Handling", "First Aid", "Listen", "Navigation", "Spot", "Survival", "Bluff",
           "Diplomacy", "Disguise", "Intimidate", "Performance", "Sense Motive", "Initiative", "Strength", "Dexterity",
-          "Constitution", "Intelligence", "Wisdom", "Charisma", "Fortitude", "Reflex", "Will", "Sanity"]
-
-attacks = ["Melee", "Ranged", "Grapple"]
+          "Constitution", "Intelligence", "Wisdom", "Charisma", "Fortitude", "Reflex", "Will", "Melee", "Ranged",
+          "Grapple", "Sanity"]
