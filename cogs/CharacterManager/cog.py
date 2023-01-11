@@ -332,7 +332,7 @@ class CharacterManager(commands.Cog):
             await try_delete(ctx.message)
             await ctx.send(embed=embed)
         else:
-            raise InputMatchError("ERROR: NOT A CHARACTER")
+            raise InputMatchError("NOT A CHARACTER")
 
     @commands.command(name="check", aliases=["chk"])
     async def check(self, ctx, *, input_skill):
