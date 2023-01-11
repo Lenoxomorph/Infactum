@@ -428,7 +428,7 @@ class CharacterManager(commands.Cog):
             if kno_match := search_list(match.group(2), [key for key in knowledge_dict]):
                 mods.append(format_mod(int(int(read_line(knowledge_dict[kno_match[1]], f"{path}/skills.csv")[0]) / 2)))
             else:
-                raise InputMatchError("ERROR: NOT A KNOWLEDGE")
+                raise InputMatchError("NOT A KNOWLEDGE")
 
         if match := search_list(input_attack, read_keys(attack_path)):
             line = read_line(match[0], attack_path)
