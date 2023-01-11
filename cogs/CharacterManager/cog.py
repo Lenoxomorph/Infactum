@@ -170,7 +170,7 @@ class CharacterManager(commands.Cog):
                 name = f.readline()
                 return path + name, name
         except FileNotFoundError:
-            raise UserDatabaseError("ERROR: NO ACTIVE CHARACTER")
+            raise UserDatabaseError("NO ACTIVE CHARACTER")
 
     @staticmethod
     def _set_user_character(user_id, char_name):
