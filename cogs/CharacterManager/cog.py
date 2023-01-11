@@ -102,7 +102,7 @@ class CharacterManager(commands.Cog):
     @contextmanager
     def _client_lock():
         if CharacterManager._client_initializing:
-            raise ExternalImportError("ERROR: STILL CONNECTING TO GOOGLE")
+            raise ExternalImportError("STILL CONNECTING TO GOOGLE")
         CharacterManager._client_initializing = True
         yield
         CharacterManager._client_initializing = False
@@ -233,7 +233,10 @@ class CharacterManager(commands.Cog):
             await self._init_gsheet_client()
         elif CharacterManager._is_expired():
             await self._refresh_google_token()
-        return self.g_client.open_by_key(key)
+        try:
+            return self.g_client.open_by_key(key)
+        except gspread.exceptions.APIError:
+            raise ExternalImportError("Make sure your sheet is set to viewing privileges")
 
     async def _update_char(self, key, author_id):
         doc = await self._get_char_doc(key)
