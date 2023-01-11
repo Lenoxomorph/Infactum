@@ -353,12 +353,25 @@ class CharacterManager(commands.Cog):
             mods.append(format_mod(int(match.group(1))))
             input_skill = input_skill[: (match.start(1))] + input_skill[match.end():]
 
+        # region Easter Eggs
+        easter_string = input_skill.strip().lower()
+        if easter_string == "piss":
+            await ctx.send(file=discord.File("db/easter_eggs/piss-i-cant-talk.gif"))
+            return
+        elif easter_string == "beef":
+            await ctx.send(file=discord.File("db/easter_eggs/b96de9fc-6c91-490a-b08a-d74b728dec49.png"))
+            return
+        elif easter_string == "backpack":
+            await ctx.invoke(self.bot.get_command('rr'), iterations=20, dice="d100")
+            return
+        # endregion
+
         if match := KNOWLEDGE_RE.search(input_skill):
             knowledge_dict = self._get_character_knowledge_dictionary(skill_path)
             if kno_match := search_list(match.group(2), [key for key in knowledge_dict]):
                 mods.append(format_mod(int(int(read_line(knowledge_dict[kno_match[1]], skill_path)[0]) / 2)))
             else:
-                raise InputMatchError("ERROR: NOT A KNOWLEDGE")
+                raise InputMatchError("NOT A KNOWLEDGE")
             input_skill = input_skill[: (match.start(1))] + input_skill[match.end():]
 
         if match := search_list(input_skill, skills + [key for key in extra_skill_dict]):
