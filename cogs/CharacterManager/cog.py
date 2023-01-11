@@ -397,7 +397,7 @@ class CharacterManager(commands.Cog):
             await try_delete(ctx.message)
             await ctx.send(embed=embed)
         else:
-            raise InputMatchError("ERROR: NOT A SKILL")
+            raise InputMatchError("NOT A SKILL")
 
     @commands.command(name="attack", aliases=["atk"])
     async def attack(self, ctx, *, input_attack):
