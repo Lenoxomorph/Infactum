@@ -455,7 +455,7 @@ class CharacterManager(commands.Cog):
             await try_delete(ctx.message)
             await ctx.send(embed=embed)
         else:
-            raise InputMatchError("ERROR: NOT A ATTACK")
+            raise InputMatchError("NOT A ATTACK")
 
     # @commands.command(name="funny", aliases=["fun"])
     # async def funny(self, ctx):
