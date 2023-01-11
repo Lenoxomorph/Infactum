@@ -1,4 +1,4 @@
-skills = ["Climb", "Jump", "Swim", "Acrobatics", "Hide", "MoveSilently", "OpenLock", "Pilot", "Pilot", "Repair",
+skills = ["Climb", "Jump", "Swim", "Acrobatics", "Hide", "Move Silently", "Open Lock", "Pilot", "Pilot", "Repair",
           "Sleight of Hand", "Craft", "Knowledge", "Knowledge", "Knowledge", "Knowledge", "Knowledge", "Knowledge",
           "Research", "Search", "Animal Handling", "First Aid", "Listen", "Navigation", "Spot", "Survival", "Bluff",
           "Diplomacy", "Disguise", "Intimidate", "Performance", "Sense Motive", "Initiative", "Strength", "Dexterity",

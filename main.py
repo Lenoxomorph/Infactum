@@ -13,6 +13,8 @@ from utils.errors import InfactumException, make_error
 
 # TODO Init Command, Help Command, Character Stuff, Iteroll
 # TODO Grapple Roll, Bleeding, Sanity, Say damage type
+from utils.music import Music
+
 
 async def get_prefix(the_bot, message):
     if not message.guild:
@@ -52,26 +54,26 @@ desc = (
     "A bot for managing rolls and characters for [Insert System Here]"  # TODO: Write said funny and good description
 )
 
-intents = discord.Intents(
-    guilds=True,
-    members=True,
-    messages=True,
-    reactions=True,
-    bans=False,
-    emojis=False,
-    integrations=False,
-    webhooks=False,
-    invites=False,
-    voice_states=False,
-    presences=False,
-    typing=False,
-)  # https://discord.com/developers/docs/topics/gateway#gateway-intents
+# intents = discord.Intents(
+#     guilds=True,
+#     members=True,
+#     messages=True,
+#     reactions=True,
+#     bans=False,
+#     emojis=False,
+#     integrations=False,
+#     webhooks=False,
+#     invites=False,
+#     voice_states=False,
+#     presences=False,
+#     typing=False,
+# )  # https://discord.com/developers/docs/topics/gateway#gateway-intents
 bot = Infactum(
     prefix=get_prefix,
     description=desc,
     activity=discord.Activity(type=discord.ActivityType.listening, name='eldritch screams'),
     allowed_mentions=discord.AllowedMentions.none(),
-    intents=intents,
+    intents=discord.Intents.all(),
     chunk_guilds_at_startup=False,
 )
 
@@ -80,6 +82,7 @@ bot = Infactum(
 async def on_ready():
     print(f"Logged in as - \"{bot.user.name}\" - {bot.user.id}")
     print(f'Infactum has awoken in {len(bot.guilds)} servers')
+    print(f'User Count: {sum([x.member_count for x in bot.guilds])}')
 
 
 @bot.event
@@ -127,6 +130,7 @@ async def on_message(message):
 for dir_name in os.listdir('cogs'):
     if dir_name != "__pycache__":
         bot.load_extension(f'cogs.{dir_name}')
+bot.add_cog(Music(bot))
 
 if __name__ == '__main__':
     bot.run(config.BOT_TOKEN)

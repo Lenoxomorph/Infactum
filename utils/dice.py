@@ -5,9 +5,11 @@ from utils.csvUtils import search_csv
 
 
 def get_emoji(author_id):
-    emoji = ''.join(search_csv(author_id, "db/emojis.csv"))
+    emoji = search_csv(author_id, "db/emojis.csv")
     if emoji is None:
         emoji = config.DEFAULT_EMOJI
+    else:
+        emoji = ''.join(emoji)
     return emoji
 
 

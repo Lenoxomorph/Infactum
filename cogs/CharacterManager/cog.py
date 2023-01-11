@@ -208,7 +208,8 @@ class CharacterManager(commands.Cog):
     def _blank_char_embed(path):
         lines = read_csv(f"{path}/info.csv")
         embed = discord.Embed(colour=discord.Colour(int(lines[5][0], 16)))
-        embed.set_thumbnail(url=lines[6][0])
+        if url := lines[6][0]:
+            embed.set_thumbnail(url=url)
         return embed
 
     @staticmethod
