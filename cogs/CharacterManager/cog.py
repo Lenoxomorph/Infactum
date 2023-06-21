@@ -9,6 +9,7 @@ from pathlib import Path
 import discord
 import google.oauth2.service_account
 import gspread as gspread
+import random
 from d20 import roll
 from discord.ext import commands
 from google.auth.transport.requests import Request
@@ -335,9 +336,34 @@ class CharacterManager(commands.Cog):
         else:
             raise InputMatchError("NOT A CHARACTER")
 
-    @commands.command(name="check", aliases=["chk"])
+    @commands.command(name="check", aliases=["chk", "czech"])
     async def check(self, ctx, *, input_skill):
         """"""  # TODO Add Description
+        # region Easter Eggs
+        easter_string = input_skill.strip().lower()
+        if easter_string == "piss":
+            await ctx.send(file=discord.File("db/easter_eggs/piss-i-cant-talk.gif"))
+            return
+        elif easter_string == "beef":
+            await ctx.send(file=discord.File("db/easter_eggs/b96de9fc-6c91-490a-b08a-d74b728dec49.png"))
+            return
+        elif easter_string == "dyslexia":
+            await ctx.send(file=discord.File("db/easter_eggs/funny-cant-see.gif"))
+            return
+        elif easter_string == "erection":
+            if random.random() <= 0.01:
+                await ctx.send(file=discord.File("db/easter_eggs/fail.gif"))
+            else:
+                await ctx.send(file=discord.File("db/easter_eggs/neco-arc-erection.gif"))
+            return
+        elif easter_string == "backpack":
+            await ctx.invoke(self.bot.get_command('rr'), iterations=20, dice="d100")
+            return
+        elif easter_string == "rat":
+            await ctx.send(file=discord.File("db/easter_eggs/rat.gif"))
+            return
+        # endregion
+
         adv_num = 0
         if match := ADV_DIS_RE.search(input_skill):
             adv_num += int(match.group(2))
@@ -354,23 +380,13 @@ class CharacterManager(commands.Cog):
             mods.append(format_mod(int(match.group(1))))
             input_skill = input_skill[: (match.start(1))] + input_skill[match.end():]
 
-        # region Easter Eggs
-        easter_string = input_skill.strip().lower()
-        if easter_string == "piss":
-            await ctx.send(file=discord.File("db/easter_eggs/piss-i-cant-talk.gif"))
-            return
-        elif easter_string == "beef":
-            await ctx.send(file=discord.File("db/easter_eggs/b96de9fc-6c91-490a-b08a-d74b728dec49.png"))
-            return
-        elif easter_string == "backpack":
-            await ctx.invoke(self.bot.get_command('rr'), iterations=20, dice="d100")
-            return
-        # endregion
-
         if match := KNOWLEDGE_RE.search(input_skill):
             knowledge_dict = self._get_character_knowledge_dictionary(skill_path)
             if kno_match := search_list(match.group(2), [key for key in knowledge_dict]):
-                mods.append(format_mod(int(int(read_line(knowledge_dict[kno_match[1]], skill_path)[0]) / 2)))
+                knowledge_line = read_line(knowledge_dict[kno_match[1]], skill_path)
+                mods.append(format_mod(int(int(knowledge_line[0]) / 2)))
+                if int(knowledge_line[2]):
+                    mods.append(format_mod(3))
             else:
                 raise InputMatchError("NOT A KNOWLEDGE")
             input_skill = input_skill[: (match.start(1))] + input_skill[match.end():]
