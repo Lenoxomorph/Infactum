@@ -95,15 +95,19 @@ async def on_command_error(ctx, error):
     if isinstance(error, commands.CommandNotFound):
         return
     elif isinstance(error, InfactumException):
+        print(error)
         return await ctx.send(make_error(error))
     elif isinstance(error, (commands.UserInputError, commands.NoPrivateMessage, ValueError)):
+        print(f"COMMAND ERROR: {str(error)}\n)")
         return await ctx.send(make_error(f"COMMAND ERROR: {str(error)}\n"
                                          f"Use \"{ctx.prefix}help " + ctx.command.qualified_name + "\" for help."))
     elif isinstance(error, CommandInvokeError):
         original = error.original
         if isinstance(original, d20.RollError):
+            print(f"ROLL ERROR - {original}")
             return await ctx.send(make_error(f"ROLL ERROR - {original}"))
         elif isinstance(original, InfactumException):
+            print(original)
             return await ctx.send(make_error(original))
 
     await ctx.send(

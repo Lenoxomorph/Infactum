@@ -351,7 +351,9 @@ class CharacterManager(commands.Cog):
             await ctx.send(file=discord.File("db/easter_eggs/funny-cant-see.gif"))
             return
         elif easter_string == "erection":
-            if random.random() <= 0.01:
+            randNum = random.random()
+            print(f"ER CHECK: {randNum}")
+            if randNum <= 0.01:
                 await ctx.send(file=discord.File("db/easter_eggs/fail.gif"))
             else:
                 await ctx.send(file=discord.File("db/easter_eggs/neco-arc-erection.gif"))
@@ -411,6 +413,7 @@ class CharacterManager(commands.Cog):
             embed = self._blank_char_embed(path)
             embed.title = f"{name} makes a {match[1]} check!"
             embed.description = description
+            print(f"{name} makes a {match[1]} check! ------- {description}")
             await try_delete(ctx.message)
             await ctx.send(embed=embed)
         else:
