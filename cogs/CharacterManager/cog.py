@@ -355,6 +355,8 @@ class CharacterManager(commands.Cog):
             print(f"ER CHECK: {randNum}")
             if randNum <= 0.01:
                 await ctx.send(file=discord.File("db/easter_eggs/fail.gif"))
+            elif randNum >= 0.99:
+                await ctx.send(file=discord.File("db/easter_eggs/big-balloon.gif"))
             else:
                 await ctx.send(file=discord.File("db/easter_eggs/neco-arc-erection.gif"))
             return

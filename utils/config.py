@@ -1,6 +1,6 @@
 import os
 
-BOT_TOKEN = os.getenv("BOT_TOKEN", "")
+BOT_TOKEN = os.getenv("BOT_TOKEN", "NzA3MTM5ODA4MDAyMzEwMTk0.GhZKj7.L1NLL-wHPEF0DQbCkWWBABCPY9tjLlWA4WiVzM")
 
 DEFAULT_PREFIX = os.getenv("DEFAULT_PREFIX", ">")
 
