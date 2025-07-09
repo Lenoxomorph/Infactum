@@ -2,3 +2,4 @@
 /.idea/
 /infactum-google.json
 /db/
+/utils/config.py
