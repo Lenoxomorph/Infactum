@@ -357,6 +357,10 @@ class CharacterManager(commands.Cog):
                 await ctx.send(file=discord.File("db/easter_eggs/fail.gif"))
             elif randNum >= 0.99:
                 await ctx.send(file=discord.File("db/easter_eggs/big-balloon.gif"))
+            elif 0.40 <= randNum < 0.41:
+                await ctx.send(file=discord.File("db/easter_eggs/rat.gif"))
+            elif 0.69 <= randNum < 0.70:
+                await ctx.send(file=discord.File("db/easter_eggs/moleRat.png"))
             else:
                 await ctx.send(file=discord.File("db/easter_eggs/neco-arc-erection.gif"))
             return
