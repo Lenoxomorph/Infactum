@@ -1,3 +1,4 @@
+import asyncio
 import os
 import traceback
 
@@ -131,10 +132,16 @@ async def on_message(message):
         pass  # TODO: Add Aliases
 
 
-for dir_name in os.listdir('cogs'):
-    if dir_name != "__pycache__":
-        bot.load_extension(f'cogs.{dir_name}')
-bot.add_cog(Music(bot))
+async def main():
+    for dir_name in os.listdir('cogs'):
+        if dir_name != "__pycache__":
+            try:
+                await bot.load_extension(f'cogs.{dir_name}')
+            except Exception as e:
+                print(f"Failed to load {dir_name}: {e}")
+
+    await bot.start(config.BOT_TOKEN)
+
 
 if __name__ == '__main__':
-    bot.run(config.BOT_TOKEN)
+    asyncio.run(main())

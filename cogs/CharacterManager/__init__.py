@@ -1,5 +1,5 @@
 from .cog import CharacterManager
 
 
-def setup(bot):
-    bot.add_cog(CharacterManager(bot))
+async def setup(bot):
+    await bot.add_cog(CharacterManager(bot))
