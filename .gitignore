@@ -1,5 +1,6 @@
-/venv/
+__pycache__/
+/.venv/
 /.idea/
-/infactum-google.json
+infactum-google.json
 /db/
-/README.md
+.env
