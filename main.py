@@ -88,7 +88,7 @@ async def on_ready():
 
 @bot.event
 async def on_resumed():
-    print("Resumed")
+    pass
 
 
 @bot.event
